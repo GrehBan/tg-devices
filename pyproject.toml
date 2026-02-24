@@ -32,7 +32,7 @@ dev = [
 
 [tool.ruff]
 line-length = 79
-src = ["src", "tests"]
+src = ["tg_devices"]
 target-version = "py314"
 exclude = [
     ".git",
