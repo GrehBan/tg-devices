@@ -64,6 +64,26 @@ The simplest way to use ``tg-devices`` is to instantiate the generator and call 
     print(f"App: {profile.app_version}")       # e.g., "4.14.13 x64"
     print(f"Device: {profile.device_model}")   # e.g., "Desktop"
 
+Custom OS Weight Distribution
+-----------------------------
+
+By default, ``StaticWeightProvider`` uses preset OS weights (Windows 30 %, macOS 15 %, Linux 5 %, Android 50 %).
+You can override them by passing keyword arguments that sum to 100, or provide a partial set and let the library
+distribute the remainder proportionally.
+
+.. code-block:: python
+
+    from tg_devices.generator.generator import DeviceProfileGenerator
+    from tg_devices.weight.provider import StaticWeightProvider
+
+    # Fully custom weights (must sum to 100)
+    provider = StaticWeightProvider(windows=50, macos=10, linux=5, android=35)
+    generator = DeviceProfileGenerator(weight_provider=provider)
+
+    # Partial weights — the rest is distributed proportionally from the defaults
+    provider = StaticWeightProvider(android=80)
+    generator = DeviceProfileGenerator(weight_provider=provider)
+
 Specific OS Generation
 ----------------------
 

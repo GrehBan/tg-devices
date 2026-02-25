@@ -7,6 +7,28 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
 and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+0.1.1 - 2026-02-25
+==================
+
+Added
+-----
+- ``WeightParams`` ``TypedDict`` enabling customizable per-OS weight distribution when instantiating ``StaticWeightProvider`` (e.g., ``StaticWeightProvider(windows=40, android=60)``).
+- ``StaticWeightProvider.__init__`` now accepts ``**weight_params: Unpack[WeightParams]``; missing OS weights are distributed proportionally from the remaining budget (weights must sum to 100).
+- Pre-computed compatibility maps at module level (``WINDOWS_COMPATIBILITY_MAP``, ``MACOS_COMPATIBILITY_MAP``, ``LINUX_COMPATIBILITY_MAP``, ``ANDROID_COMPATIBILITY_MAP``) to avoid redundant computation on every provider instantiation.
+- Pre-computed ``Weights`` dataclass instances (``WINDOWS_WEIGHTS_DT``, ``MACOS_WEIGHTS_DT``, ``LINUX_WEIGHTS_DT``, ``ANDROID_WEIGHTS_DT``) exposed from ``introspection`` module.
+- Pre-computed device model tuples (``WINDOWS_DEVICE_MODEL``, ``MACOS_DEVICE_MODEL``, ``LINUX_DEVICE_MODEL``, ``ANDROID_DEVICE_MODEL``) and ``OS_NAMES`` exposed from ``introspection`` module.
+- ``py.typed`` marker file added for PEP 561 compliance (package now advertises inline type information).
+
+Changed
+-------
+- ``StaticWeightProvider.map`` and ``os_probabilities`` are now instance attributes built inside ``__init__`` instead of class-level attributes, supporting per-instance weight configuration.
+- All weight mapping constants (``WINDOWS_APP_WEIGHTS``, ``MACOS_APP_WEIGHTS``, etc.) are now annotated with ``Final``.
+- Replaced ``zip(*dict.items())`` tuple unpacking with explicit ``tuple(dict.keys())`` / ``tuple(dict.values())`` calls, each annotated with ``Final``.
+
+Removed
+-------
+- Removed ``uv.lock`` from version control.
+
 0.1.0 - 2026-02-24
 ==================
 
