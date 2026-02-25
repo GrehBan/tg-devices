@@ -1,29 +1,47 @@
-from tg_devices.compatibility.map import get_compatibility_map
-from tg_devices.enums.android import AndroidModel
-from tg_devices.enums.linux import LinuxDesktopModel
-from tg_devices.enums.macos import MacOSDesktopModel
+from collections.abc import Iterable
+from typing import TypedDict, Unpack, cast
+
 from tg_devices.enums.os import OS
-from tg_devices.enums.windows import WindowsDesktopModel
 from tg_devices.weight.introspection import (
     ANDROID_APPS,
     ANDROID_APPS_WEIGHTS,
+    ANDROID_COMPATIBILITY_MAP,
+    ANDROID_DEVICE_MODEL,
     ANDROID_SYSTEMS,
     ANDROID_SYSTEMS_WEIGHTS,
+    ANDROID_WEIGHTS_DT,
     LIN_APPS_WEIGHTS,
     LIN_SYSTEMS_WEIGHTS,
     LINUX_APPS,
+    LINUX_COMPATIBILITY_MAP,
+    LINUX_DEVICE_MODEL,
     LINUX_SYSTEMS,
+    LINUX_WEIGHTS_DT,
     MAC_APPS,
     MAC_APPS_WEIGHTS,
     MAC_SYSTEMS,
     MAC_SYSTEMS_WEIGHTS,
+    MACOS_COMPATIBILITY_MAP,
+    MACOS_DEVICE_MODEL,
+    MACOS_WEIGHTS_DT,
+    OS_NAMES,
     WIN_APPS,
     WIN_APPS_WEIGHTS,
     WIN_SYSTEMS,
     WIN_SYSTEMS_WEIGHTS,
+    WINDOWS_COMPATIBILITY_MAP,
+    WINDOWS_DEVICE_MODEL,
+    WINDOWS_WEIGHTS_DT,
 )
 from tg_devices.weight.protocols import IWeightProvider
-from tg_devices.weight.weights import StaticOSWeights, Weights
+from tg_devices.weight.weights import StaticOSWeights
+
+
+class WeightParams(TypedDict, total=False):
+    windows: int
+    linux: int
+    macos: int
+    android: int
 
 
 class StaticWeightProvider(IWeightProvider):
@@ -35,7 +53,6 @@ class StaticWeightProvider(IWeightProvider):
     linux_systems = LINUX_SYSTEMS
     android_apps = ANDROID_APPS
     android_systems = ANDROID_SYSTEMS
-
     windows_app_weights = WIN_APPS_WEIGHTS
     windows_system_weights = WIN_SYSTEMS_WEIGHTS
     macos_app_weights = MAC_APPS_WEIGHTS
@@ -44,66 +61,94 @@ class StaticWeightProvider(IWeightProvider):
     linux_system_weights = LIN_SYSTEMS_WEIGHTS
     android_app_weights = ANDROID_APPS_WEIGHTS
     android_system_weights = ANDROID_SYSTEMS_WEIGHTS
+    os_names = OS_NAMES
+    windows_compatibility_map = WINDOWS_COMPATIBILITY_MAP
+    macos_compatibility_map = MACOS_COMPATIBILITY_MAP
+    linux_compatibility_map = LINUX_COMPATIBILITY_MAP
+    android_compatibility_map = ANDROID_COMPATIBILITY_MAP
+    windows_device_model = WINDOWS_DEVICE_MODEL
+    macos_device_model = MACOS_DEVICE_MODEL
+    linux_device_model = LINUX_DEVICE_MODEL
+    android_device_model = ANDROID_DEVICE_MODEL
+    windows_weights_dt = WINDOWS_WEIGHTS_DT
+    macos_weights_dt = MACOS_WEIGHTS_DT
+    linux_weights_dt = LINUX_WEIGHTS_DT
+    android_weights_dt = ANDROID_WEIGHTS_DT
 
-    map = {
-        OS.WINDOWS: StaticOSWeights(
-            app_version=windows_apps,
-            system_version=windows_systems,
-            device_model=tuple(WindowsDesktopModel),
-            weight=30,
-            weights=Weights(
-                app_weights=windows_app_weights,
-                system_weights=windows_system_weights,
-            ),
-            compatibility_map=get_compatibility_map(
-                OS.WINDOWS, windows_apps, windows_app_weights, windows_systems
-            ),
-        ),
-        OS.MACOS: StaticOSWeights(
-            app_version=macos_apps,
-            system_version=macos_systems,
-            device_model=tuple(MacOSDesktopModel),
-            weight=15,
-            weights=Weights(
-                app_weights=macos_app_weights,
-                system_weights=macos_system_weights,
-            ),
-            compatibility_map=get_compatibility_map(
-                OS.MACOS, macos_apps, macos_app_weights, macos_systems
-            ),
-        ),
-        OS.LINUX: StaticOSWeights(
-            app_version=linux_apps,
-            system_version=linux_systems,
-            device_model=tuple(LinuxDesktopModel),
-            weight=5,
-            weights=Weights(
-                app_weights=linux_app_weights,
-                system_weights=linux_system_weights,
-            ),
-            compatibility_map=get_compatibility_map(
-                OS.LINUX, linux_apps, linux_app_weights, linux_systems
-            ),
-        ),
-        OS.ANDROID: StaticOSWeights(
-            app_version=android_apps,
-            system_version=android_systems,
-            device_model=tuple(AndroidModel),
-            weight=50,
-            weights=Weights(
-                app_weights=android_app_weights,
-                system_weights=android_system_weights,
-            ),
-            compatibility_map=get_compatibility_map(
-                OS.ANDROID, android_apps, android_app_weights, android_systems
-            ),
-        ),
-    }
+    def __init__(self, **weight_params: Unpack[WeightParams]) -> None:
+        defaults = {"windows": 30, "macos": 15, "linux": 5, "android": 50}
 
-    os_names: tuple[OS, ...] = tuple(OS)
-    os_probabilities: tuple[int, ...] = tuple(
-        weight.weight for weight in map.values()
-    )
+        if not weight_params:
+            weight_params.update(defaults)  # type: ignore
+
+        provided_sum = sum(cast(Iterable[int], weight_params.values()))
+        missing_keys = [k for k in defaults if k not in weight_params]
+
+        if missing_keys:
+            if provided_sum >= 100:
+                raise ValueError(
+                    f"Sum of provided weights ({provided_sum})"
+                    f" is >= 100, but keys {missing_keys} are missing."
+                )
+
+            remaining = 100 - provided_sum
+            default_sum_missing = sum(defaults[k] for k in missing_keys)
+
+            current_distributed = 0
+            for i, key in enumerate(missing_keys):
+                if i == len(missing_keys) - 1:
+                    val = remaining - current_distributed
+                else:
+                    val = int(
+                        round(
+                            (defaults[key] / default_sum_missing) * remaining
+                        )
+                    )
+                    current_distributed += val
+                weight_params[key] = val  # type: ignore
+
+        if sum(cast(Iterable[int], weight_params.values())) != 100:
+            raise ValueError("Weights must sum up to 100")
+
+        weights = cast(dict[str, int], weight_params)
+
+        self.map = {
+            OS.WINDOWS: StaticOSWeights(
+                app_version=self.windows_apps,
+                system_version=self.windows_systems,
+                device_model=self.windows_device_model,
+                weight=weights["windows"],
+                weights=self.windows_weights_dt,
+                compatibility_map=self.windows_compatibility_map,
+            ),
+            OS.MACOS: StaticOSWeights(
+                app_version=self.macos_apps,
+                system_version=self.macos_systems,
+                device_model=self.macos_device_model,
+                weight=weights["macos"],
+                weights=self.macos_weights_dt,
+                compatibility_map=self.macos_compatibility_map,
+            ),
+            OS.LINUX: StaticOSWeights(
+                app_version=self.linux_apps,
+                system_version=self.linux_systems,
+                device_model=self.linux_device_model,
+                weight=weights["linux"],
+                weights=self.linux_weights_dt,
+                compatibility_map=self.linux_compatibility_map,
+            ),
+            OS.ANDROID: StaticOSWeights(
+                app_version=self.android_apps,
+                system_version=self.android_systems,
+                device_model=self.android_device_model,
+                weight=weights["android"],
+                weights=self.android_weights_dt,
+                compatibility_map=self.android_compatibility_map,
+            ),
+        }
+        self.os_probabilities: tuple[int, ...] = tuple(
+            weight.weight for weight in self.map.values()
+        )
 
     def get_os_weights(self, os: OS) -> StaticOSWeights:
         return self.map[os]

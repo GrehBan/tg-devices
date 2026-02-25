@@ -1,11 +1,33 @@
 from collections.abc import Mapping
+from typing import Final
 
-from tg_devices.enums.android import AndroidAppVersion, AndroidSystemVersion
-from tg_devices.enums.linux import LinuxAppVersion, LinuxSystemVersion
-from tg_devices.enums.macos import MacOSAppVersion, MacOSSystemVersion
-from tg_devices.enums.windows import WindowsAppVersion, WindowsSystemVersion
+from tg_devices.compatibility.map import get_compatibility_map
+from tg_devices.enums.android import (
+    AndroidAppVersion,
+    AndroidModel,
+    AndroidSystemVersion,
+)
+from tg_devices.enums.app_version import AppVersion
+from tg_devices.enums.linux import (
+    LinuxAppVersion,
+    LinuxDesktopModel,
+    LinuxSystemVersion,
+)
+from tg_devices.enums.macos import (
+    MacOSAppVersion,
+    MacOSDesktopModel,
+    MacOSSystemVersion,
+)
+from tg_devices.enums.os import OS
+from tg_devices.enums.system_version import SystemVersion
+from tg_devices.enums.windows import (
+    WindowsAppVersion,
+    WindowsDesktopModel,
+    WindowsSystemVersion,
+)
+from tg_devices.weight.weights import Weights
 
-WINDOWS_APP_WEIGHTS: Mapping[WindowsAppVersion, int] = {
+WINDOWS_APP_WEIGHTS: Final[Mapping[WindowsAppVersion, int]] = {
     WindowsAppVersion.V4_8_3_X64: 1,
     WindowsAppVersion.V4_8_3_X86: 1,
     WindowsAppVersion.V4_8_1_X64: 1,
@@ -131,7 +153,7 @@ WINDOWS_APP_WEIGHTS: Mapping[WindowsAppVersion, int] = {
     WindowsAppVersion.V6_5_1_STORE: 3,
 }
 
-MACOS_APP_WEIGHTS: Mapping[MacOSAppVersion, int] = {
+MACOS_APP_WEIGHTS: Final[Mapping[MacOSAppVersion, int]] = {
     MacOSAppVersion.V4_8_3_INTEL: 1,
     MacOSAppVersion.V4_8_3_ARM64: 1,
     MacOSAppVersion.V4_8_1_INTEL: 1,
@@ -263,7 +285,7 @@ MACOS_APP_WEIGHTS: Mapping[MacOSAppVersion, int] = {
     MacOSAppVersion.V4_16_9_STORE_INTEL: 1,
 }
 
-LINUX_APP_WEIGHTS: Mapping[LinuxAppVersion, int] = {
+LINUX_APP_WEIGHTS: Final[Mapping[LinuxAppVersion, int]] = {
     LinuxAppVersion.V4_8_3: 1,
     LinuxAppVersion.V4_8_1: 1,
     LinuxAppVersion.V4_9_9: 2,
@@ -387,7 +409,7 @@ LINUX_APP_WEIGHTS: Mapping[LinuxAppVersion, int] = {
     LinuxAppVersion.V6_5_1_ARM64: 2,
 }
 
-ANDROID_APP_WEIGHTS: Mapping[AndroidAppVersion, int] = {
+ANDROID_APP_WEIGHTS: Final[Mapping[AndroidAppVersion, int]] = {
     AndroidAppVersion.V8_9_3: 1,
     AndroidAppVersion.V9_6_5: 1,
     AndroidAppVersion.V10_0_1: 2,
@@ -423,7 +445,7 @@ ANDROID_APP_WEIGHTS: Mapping[AndroidAppVersion, int] = {
     AndroidAppVersion.V12_5_0: 5,
 }
 
-WINDOWS_SYSTEM_WEIGHTS: Mapping[WindowsSystemVersion, int] = {
+WINDOWS_SYSTEM_WEIGHTS: Final[Mapping[WindowsSystemVersion, int]] = {
     WindowsSystemVersion.WINDOWS_10_1507: 1,
     WindowsSystemVersion.WINDOWS_10_1511: 1,
     WindowsSystemVersion.WINDOWS_10_1607: 1,
@@ -445,7 +467,7 @@ WINDOWS_SYSTEM_WEIGHTS: Mapping[WindowsSystemVersion, int] = {
     WindowsSystemVersion.WINDOWS_11_25H2: 3,
 }
 
-MACOS_SYSTEM_WEIGHTS: Mapping[MacOSSystemVersion, int] = {
+MACOS_SYSTEM_WEIGHTS: Final[Mapping[MacOSSystemVersion, int]] = {
     MacOSSystemVersion.HIGH_SIERRA_10_13_6: 1,
     MacOSSystemVersion.MOJAVE_10_14_6: 1,
     MacOSSystemVersion.CATALINA_10_15_7: 2,
@@ -483,7 +505,7 @@ MACOS_SYSTEM_WEIGHTS: Mapping[MacOSSystemVersion, int] = {
     MacOSSystemVersion.TAHOE_26_0: 1,
 }
 
-LINUX_SYSTEM_WEIGHTS: Mapping[LinuxSystemVersion, int] = {
+LINUX_SYSTEM_WEIGHTS: Final[Mapping[LinuxSystemVersion, int]] = {
     LinuxSystemVersion.UBUNTU_22_04_5_15_0_127: 12,
     LinuxSystemVersion.UBUNTU_22_04_5_15_0_122: 10,
     LinuxSystemVersion.UBUNTU_22_04_5_15_0_113: 8,
@@ -575,7 +597,7 @@ LINUX_SYSTEM_WEIGHTS: Mapping[LinuxSystemVersion, int] = {
     LinuxSystemVersion.DEBIAN_10_4_19_0_27: 1,
 }
 
-ANDROID_SYSTEM_WEIGHTS: Mapping[AndroidSystemVersion, int] = {
+ANDROID_SYSTEM_WEIGHTS: Final[Mapping[AndroidSystemVersion, int]] = {
     AndroidSystemVersion.ANDROID_6_0: 1,
     AndroidSystemVersion.ANDROID_7_0: 1,
     AndroidSystemVersion.ANDROID_7_1: 1,
@@ -593,12 +615,68 @@ ANDROID_SYSTEM_WEIGHTS: Mapping[AndroidSystemVersion, int] = {
     AndroidSystemVersion.ANDROID_17_0: 2,
 }
 
-WIN_APPS, WIN_APPS_WEIGHTS = zip(*WINDOWS_APP_WEIGHTS.items())
-MAC_APPS, MAC_APPS_WEIGHTS = zip(*MACOS_APP_WEIGHTS.items())
-LINUX_APPS, LIN_APPS_WEIGHTS = zip(*LINUX_APP_WEIGHTS.items())
-ANDROID_APPS, ANDROID_APPS_WEIGHTS = zip(*ANDROID_APP_WEIGHTS.items())
+WIN_APPS: Final = tuple(WINDOWS_APP_WEIGHTS.keys())
+WIN_APPS_WEIGHTS: Final = tuple(WINDOWS_APP_WEIGHTS.values())
 
-WIN_SYSTEMS, WIN_SYSTEMS_WEIGHTS = zip(*WINDOWS_SYSTEM_WEIGHTS.items())
-MAC_SYSTEMS, MAC_SYSTEMS_WEIGHTS = zip(*MACOS_SYSTEM_WEIGHTS.items())
-LINUX_SYSTEMS, LIN_SYSTEMS_WEIGHTS = zip(*LINUX_SYSTEM_WEIGHTS.items())
-ANDROID_SYSTEMS, ANDROID_SYSTEMS_WEIGHTS = zip(*ANDROID_SYSTEM_WEIGHTS.items())
+MAC_APPS: Final = tuple(MACOS_APP_WEIGHTS.keys())
+MAC_APPS_WEIGHTS: Final = tuple(MACOS_APP_WEIGHTS.values())
+
+LINUX_APPS: Final = tuple(LINUX_APP_WEIGHTS.keys())
+LIN_APPS_WEIGHTS: Final = tuple(LINUX_APP_WEIGHTS.values())
+
+ANDROID_APPS: Final = tuple(ANDROID_APP_WEIGHTS.keys())
+ANDROID_APPS_WEIGHTS: Final = tuple(ANDROID_APP_WEIGHTS.values())
+
+WIN_SYSTEMS: Final = tuple(WINDOWS_SYSTEM_WEIGHTS.keys())
+WIN_SYSTEMS_WEIGHTS: Final = tuple(WINDOWS_SYSTEM_WEIGHTS.values())
+
+MAC_SYSTEMS: Final = tuple(MACOS_SYSTEM_WEIGHTS.keys())
+MAC_SYSTEMS_WEIGHTS: Final = tuple(MACOS_SYSTEM_WEIGHTS.values())
+
+LINUX_SYSTEMS: Final = tuple(LINUX_SYSTEM_WEIGHTS.keys())
+LIN_SYSTEMS_WEIGHTS: Final = tuple(LINUX_SYSTEM_WEIGHTS.values())
+
+ANDROID_SYSTEMS: Final = tuple(ANDROID_SYSTEM_WEIGHTS.keys())
+ANDROID_SYSTEMS_WEIGHTS: Final = tuple(ANDROID_SYSTEM_WEIGHTS.values())
+OS_NAMES: Final[tuple[OS, ...]] = tuple(OS)
+
+WINDOWS_COMPATIBILITY_MAP: Final[
+    dict[SystemVersion, tuple[tuple[AppVersion, ...], tuple[int, ...]]]
+] = get_compatibility_map(OS.WINDOWS, WIN_APPS, WIN_APPS_WEIGHTS, WIN_SYSTEMS)
+LINUX_COMPATIBILITY_MAP: Final[
+    dict[SystemVersion, tuple[tuple[AppVersion, ...], tuple[int, ...]]]
+] = get_compatibility_map(
+    OS.LINUX, LINUX_APPS, LIN_APPS_WEIGHTS, LINUX_SYSTEMS
+)
+MACOS_COMPATIBILITY_MAP: Final[
+    dict[SystemVersion, tuple[tuple[AppVersion, ...], tuple[int, ...]]]
+] = get_compatibility_map(OS.MACOS, MAC_APPS, MAC_APPS_WEIGHTS, MAC_SYSTEMS)
+ANDROID_COMPATIBILITY_MAP: Final[
+    dict[SystemVersion, tuple[tuple[AppVersion, ...], tuple[int, ...]]]
+] = get_compatibility_map(
+    OS.ANDROID, ANDROID_APPS, ANDROID_APPS_WEIGHTS, ANDROID_SYSTEMS
+)
+
+ANDROID_DEVICE_MODEL: Final[tuple[AndroidModel, ...]] = tuple(AndroidModel)
+WINDOWS_DEVICE_MODEL: Final[tuple[WindowsDesktopModel, ...]] = tuple(
+    WindowsDesktopModel
+)
+LINUX_DEVICE_MODEL: Final[tuple[LinuxDesktopModel, ...]] = tuple(
+    LinuxDesktopModel
+)
+MACOS_DEVICE_MODEL: Final[tuple[MacOSDesktopModel, ...]] = tuple(
+    MacOSDesktopModel
+)
+
+WINDOWS_WEIGHTS_DT: Final[Weights] = Weights(
+    WIN_APPS_WEIGHTS, WIN_SYSTEMS_WEIGHTS
+)
+LINUX_WEIGHTS_DT: Final[Weights] = Weights(
+    LIN_APPS_WEIGHTS, LIN_SYSTEMS_WEIGHTS
+)
+MACOS_WEIGHTS_DT: Final[Weights] = Weights(
+    MAC_APPS_WEIGHTS, MAC_SYSTEMS_WEIGHTS
+)
+ANDROID_WEIGHTS_DT: Final[Weights] = Weights(
+    ANDROID_APPS_WEIGHTS, ANDROID_SYSTEMS_WEIGHTS
+)
