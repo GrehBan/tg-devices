@@ -4,7 +4,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tg-devices"
-version = "0.1.2"
 description = "**tg-devices** is a robust Python library designed to generate realistic, statistically plausible, and technically compatible device profiles for Telegram clients."
 readme = "README.rst"
 requires-python = ">=3.14"
@@ -19,8 +18,12 @@ dependencies = [
     "typing-extensions>=4.15.0",
 ]
 
+dynamic = ["version"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["tg_devices/"]
+[tool.hatch.version]
+path = "tg_devices/__meta__.py"
 
 [dependency-groups]
 dev = [
