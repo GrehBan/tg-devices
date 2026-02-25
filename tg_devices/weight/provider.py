@@ -1,4 +1,5 @@
-from collections.abc import Iterable
+"""Static weight provider implementation."""
+
 from typing import TypedDict, Unpack, cast
 
 from tg_devices.enums.os import OS
@@ -38,6 +39,19 @@ from tg_devices.weight.weights import StaticOSWeights
 
 
 class WeightParams(TypedDict, total=False):
+    """Per-OS weight overrides for ``StaticWeightProvider``.
+
+    All keys are optional. Provided weights must sum to <= 100;
+    missing OS weights are distributed proportionally from the
+    remaining budget.
+
+    Attributes:
+        windows: Weight for Windows (default 30).
+        linux: Weight for Linux (default 5).
+        macos: Weight for macOS (default 15).
+        android: Weight for Android (default 50).
+    """
+
     windows: int
     linux: int
     macos: int
@@ -45,6 +59,22 @@ class WeightParams(TypedDict, total=False):
 
 
 class StaticWeightProvider(IWeightProvider):
+    """Provides pre-computed weight distributions for each OS.
+
+    Uses static introspection data (version enums, weight mappings,
+    compatibility maps) and builds per-instance ``StaticOSWeights``
+    bundles based on the supplied weight parameters.
+
+    Args:
+        **weight_params: Per-OS weight overrides. Omitted OS weights
+            are distributed proportionally from the remaining budget.
+            All weights must sum to 100.
+
+    Raises:
+        ValueError: If provided weights sum to >= 100 with missing
+            keys, or if final weights do not sum to 100.
+    """
+
     windows_apps = WIN_APPS
     windows_systems = WIN_SYSTEMS
     macos_apps = MAC_APPS
@@ -78,13 +108,16 @@ class StaticWeightProvider(IWeightProvider):
     def __init__(self, **weight_params: Unpack[WeightParams]) -> None:
         defaults = {"windows": 30, "macos": 15, "linux": 5, "android": 50}
 
+        weights: dict[str, int]
         if not weight_params:
-            weight_params.update(defaults)  # type: ignore
+            weights = dict(defaults)
+        else:
+            weights = cast(dict[str, int], dict(weight_params))
 
-        provided_sum = sum(cast(Iterable[int], weight_params.values()))
-        missing_keys = [k for k in defaults if k not in weight_params]
+        missing_keys = [k for k in defaults if k not in weights]
 
         if missing_keys:
+            provided_sum = sum(weights.values())
             if provided_sum >= 100:
                 raise ValueError(
                     f"Sum of provided weights ({provided_sum})"
@@ -105,12 +138,10 @@ class StaticWeightProvider(IWeightProvider):
                         )
                     )
                     current_distributed += val
-                weight_params[key] = val  # type: ignore
+                weights[key] = val
 
-        if sum(cast(Iterable[int], weight_params.values())) != 100:
+        if sum(weights.values()) != 100:
             raise ValueError("Weights must sum up to 100")
-
-        weights = cast(dict[str, int], weight_params)
 
         self.map = {
             OS.WINDOWS: StaticOSWeights(
@@ -151,10 +182,29 @@ class StaticWeightProvider(IWeightProvider):
         )
 
     def get_os_weights(self, os: OS) -> StaticOSWeights:
+        """Return the weight bundle for a given OS.
+
+        Args:
+            os: The target operating system.
+
+        Returns:
+            A ``StaticOSWeights`` with versions, models, weights,
+            and the pre-computed compatibility map.
+        """
         return self.map[os]
 
     def get_os_names(self) -> tuple[OS, ...]:
+        """Return all supported operating systems.
+
+        Returns:
+            Tuple of ``OS`` enum members.
+        """
         return self.os_names
 
     def get_os_probabilities(self) -> tuple[int, ...]:
+        """Return selection probabilities for each OS.
+
+        Returns:
+            Tuple of integer weights aligned with ``get_os_names()``.
+        """
         return self.os_probabilities

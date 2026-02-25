@@ -51,7 +51,7 @@ The simplest way to use ``tg-devices`` is to instantiate the generator and call 
 
 .. code-block:: python
 
-    from tg_devices.generator.generator import DeviceProfileGenerator
+    from tg_devices import DeviceProfileGenerator
 
     # Initialize the generator
     generator = DeviceProfileGenerator()
@@ -67,22 +67,21 @@ The simplest way to use ``tg-devices`` is to instantiate the generator and call 
 Custom OS Weight Distribution
 -----------------------------
 
-By default, ``StaticWeightProvider`` uses preset OS weights (Windows 30 %, macOS 15 %, Linux 5 %, Android 50 %).
-You can override them by passing keyword arguments that sum to 100, or provide a partial set and let the library
-distribute the remainder proportionally.
+By default, OS weights are Windows 30 %, macOS 15 %, Linux 5 %, Android 50 %.
+You can override them directly on the generator (or via ``StaticWeightProvider``).
+Provide a partial set and the library distributes the remainder proportionally.
 
 .. code-block:: python
 
-    from tg_devices.generator.generator import DeviceProfileGenerator
-    from tg_devices.weight.provider import StaticWeightProvider
+    from tg_devices import DeviceProfileGenerator
 
     # Fully custom weights (must sum to 100)
-    provider = StaticWeightProvider(windows=50, macos=10, linux=5, android=35)
-    generator = DeviceProfileGenerator(weight_provider=provider)
+    generator = DeviceProfileGenerator(
+        windows=50, macos=10, linux=5, android=35,
+    )
 
-    # Partial weights — the rest is distributed proportionally from the defaults
-    provider = StaticWeightProvider(android=80)
-    generator = DeviceProfileGenerator(weight_provider=provider)
+    # Partial weights — the rest is distributed proportionally
+    generator = DeviceProfileGenerator(android=80)
 
 Specific OS Generation
 ----------------------
@@ -91,8 +90,7 @@ You can force the generator to produce a profile for a specific Operating System
 
 .. code-block:: python
 
-    from tg_devices.generator.generator import DeviceProfileGenerator
-    from tg_devices.enums.os import OS
+    from tg_devices import DeviceProfileGenerator, OS
 
     generator = DeviceProfileGenerator()
 

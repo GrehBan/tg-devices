@@ -1,9 +1,13 @@
+"""macOS-specific device model, app version, and system version enums."""
+
 from tg_devices.enums.app_version import AppVersion
 from tg_devices.enums.device_model import DeviceModel
 from tg_devices.enums.system_version import SystemVersion
 
 
 class MacOSDesktopModel(DeviceModel):
+    """Mac hardware model identifiers (e.g. ``MacBookPro18,1``)."""
+
     MACBOOK_AIR_M1 = "MacBookAir10,1"  # MacBook Air 13" M1 (2020)
     MACBOOK_AIR_M2_13 = "Mac14,2"  # MacBook Air 13" M2 (2022)
     MACBOOK_AIR_M2_15 = "Mac14,15"  # MacBook Air 15" M2 (2023)
@@ -50,6 +54,8 @@ class MacOSDesktopModel(DeviceModel):
 
 
 class MacOSAppVersion(AppVersion):
+    """Telegram Desktop version strings for macOS (Intel and ARM64)."""
+
     V4_8_3_INTEL = "4.8.3"
     V4_8_3_ARM64 = "4.8.3 arm64"
     V4_8_1_INTEL = "4.8.1"
@@ -183,6 +189,8 @@ class MacOSAppVersion(AppVersion):
 
 
 class MacOSSystemVersion(SystemVersion):
+    """macOS release version strings (High Sierra through Tahoe)."""
+
     HIGH_SIERRA_10_13 = "10.13"
     HIGH_SIERRA_10_13_1 = "10.13.1"
     HIGH_SIERRA_10_13_2 = "10.13.2"

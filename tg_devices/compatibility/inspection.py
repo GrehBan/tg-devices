@@ -1,19 +1,47 @@
+"""Semantic version compatibility checks for Telegram clients."""
+
 import re
 
 from tg_devices.enums.os import OS
 
 
 def parse_version(version_str: str) -> tuple[int, ...]:
-    # Extract only the numeric part (e.g., from "6.5.1 x64")
+    """Extract a numeric version tuple from a version string.
+
+    This function searches for the first dotted-numeric sequence in
+    a string (e.g., "10.0.19045") and converts it into a tuple of
+    integers for easy comparison. Architecture suffixes like "x64"
+    are ignored.
+
+    Args:
+        version_str: The raw version string to be parsed.
+
+    Returns:
+        A tuple of integers (e.g., (6, 5, 1)). If no numeric sequence
+        is found, (0,) is returned.
+    """
     match = re.search(r"(\d+(?:\.\d+)+)", version_str)
     if not match:
         return (0,)
     return tuple(map(int, match.group(1).split(".")))
 
 
-def is_compatible(
-    os: OS, sys_idx: int, app_idx: int, sys_ver: str, app_ver: str
-) -> bool:
+def is_compatible(os: OS, sys_ver: str, app_ver: str) -> bool:
+    """Check if an app version is compatible with a given OS version.
+
+    This function enforces several real-world and projected
+    compatibility rules, such as minimum OS requirements for newer
+    app versions and exclusion of legacy apps from modern systems.
+
+    Args:
+        os: The target operating system.
+        sys_ver: The system version string (e.g., "10.0.22621").
+        app_ver: The Telegram app version string (e.g., "5.0.1").
+
+    Returns:
+        True if the combination is statistically and technically
+        plausible; False otherwise.
+    """
     app_v = parse_version(app_ver)
     sys_v = parse_version(sys_ver)
 
@@ -40,21 +68,20 @@ def is_compatible(
         if app_v[0] >= 12 and sys_v < (8, 0):
             return False
 
-    # 3. Rule: Old app_version should not appear with new system_version.
+    # 3. Rule: Old app versions should not appear with new system versions.
     if os == OS.WINDOWS:
-        if sys_idx >= 14 and app_idx <= 27:
+        # No 4.x apps on Windows 11+
+        if sys_v >= (10, 0, 22000) and app_v < (5, 0):
             return False
 
     elif os == OS.MACOS:
-        # If system is Sonoma+ (index 13+), avoid 4.x apps (index 0-30).
-        if sys_idx >= 13 and app_idx <= 30:
+        # No 4.x apps on Sonoma+
+        if sys_v >= (14,) and app_v < (5, 0):
             return False
 
     elif os == OS.ANDROID:
-        # Avoid running very old apps (8.x, 9.x) on bleeding edge Android 15+
-        # app_idx 0-1 are 8.x/9.x
-        # sys_idx 12+ are Android 15/16/17
-        if sys_idx >= 12 and app_idx <= 1:
+        # No 8.x/9.x apps on Android 15+
+        if sys_v >= (15,) and app_v < (10,):
             return False
 
     return True

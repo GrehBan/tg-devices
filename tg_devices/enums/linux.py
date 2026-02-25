@@ -1,9 +1,13 @@
+"""Linux-specific device model, app version, and system version enums."""
+
 from tg_devices.enums.app_version import AppVersion
 from tg_devices.enums.device_model import DeviceModel
 from tg_devices.enums.system_version import SystemVersion
 
 
 class LinuxDesktopModel(DeviceModel):
+    """Linux hardware model identifiers (ThinkPads, XPS, Framework, etc.)."""
+
     THINKPAD_T14_GEN2_AMD = "2166"  # ThinkPad T14 Gen 2 AMD
     THINKPAD_T14S_GEN2_AMD = "216C"  # ThinkPad T14s Gen 2 AMD
     THINKPAD_E14_GEN3 = "2248"  # ThinkPad E14 Gen 3
@@ -83,6 +87,8 @@ class LinuxDesktopModel(DeviceModel):
 
 
 class LinuxAppVersion(AppVersion):
+    """Telegram Desktop version strings for Linux."""
+
     V4_8_3 = "4.8.3"
     V4_8_1 = "4.8.1"
     V4_9_9 = "4.9.9"
@@ -207,6 +213,8 @@ class LinuxAppVersion(AppVersion):
 
 
 class LinuxSystemVersion(SystemVersion):
+    """Linux kernel version strings across major distributions."""
+
     UBUNTU_20_04_5_4_0_182 = "5.4.0-182-generic"
     UBUNTU_20_04_5_4_0_169 = "5.4.0-169-generic"
     UBUNTU_20_04_5_4_0_155 = "5.4.0-155-generic"

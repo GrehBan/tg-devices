@@ -1,9 +1,13 @@
+"""Android-specific device model, app version, and system version enums."""
+
 from tg_devices.enums.app_version import AppVersion
 from tg_devices.enums.device_model import DeviceModel
 from tg_devices.enums.system_version import SystemVersion
 
 
 class AndroidModel(DeviceModel):
+    """Android smartphone model identifiers."""
+
     # --- Samsung ---
     SAMSUNG_GALAXY_S26_ULTRA = "Samsung Galaxy S26 Ultra"
     SAMSUNG_GALAXY_S26_PLUS = "Samsung Galaxy S26+"
@@ -108,6 +112,8 @@ class AndroidModel(DeviceModel):
 
 
 class AndroidAppVersion(AppVersion):
+    """Telegram for Android version strings."""
+
     # Historical
     V8_9_3 = "8.9.3"
     V9_6_5 = "9.6.5"
@@ -149,6 +155,8 @@ class AndroidAppVersion(AppVersion):
 
 
 class AndroidSystemVersion(SystemVersion):
+    """Android OS version strings (Marshmallow through Android 17)."""
+
     ANDROID_6_0 = "6.0"  # Marshmallow
     ANDROID_7_0 = "7.0"  # Nougat
     ANDROID_7_1 = "7.1"

@@ -1,9 +1,13 @@
+"""Windows-specific device model, app version, and system version enums."""
+
 from tg_devices.enums.app_version import AppVersion
 from tg_devices.enums.device_model import DeviceModel
 from tg_devices.enums.system_version import SystemVersion
 
 
 class WindowsDesktopModel(DeviceModel):
+    """Windows desktop/laptop hardware model identifiers."""
+
     DELL_0000000000 = "0000000000"
     DELL_0133D9 = "0133D9"  # OptiPlex
     DELL_03X0MN = "03X0MN"  # OptiPlex 390
@@ -430,6 +434,8 @@ class WindowsDesktopModel(DeviceModel):
 
 
 class WindowsAppVersion(AppVersion):
+    """Telegram Desktop version strings for Windows."""
+
     V4_8_3_X64 = "4.8.3 x64"
     V4_8_3_X86 = "4.8.3"
     V4_8_1_X64 = "4.8.1 x64"
@@ -556,6 +562,8 @@ class WindowsAppVersion(AppVersion):
 
 
 class WindowsSystemVersion(SystemVersion):
+    """Windows 10/11 build version strings."""
+
     # 1507 (RTM, July 2015)
     WINDOWS_10_1507 = "10.0.10240"
     # 1511 (November Update, Nov 2015)

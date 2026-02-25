@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
 and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+0.1.2 - 2026-02-25
+==================
+
+Added
+-----
+- Public re-exports in ``tg_devices/__init__.py``: ``DeviceProfileGenerator``, ``OS``, ``OSProfile`` are now importable via ``from tg_devices import ...``.
+- Comprehensive Google-style docstrings across all modules, classes, and public functions.
+- Module-level docstrings for all ``__init__.py`` files in the library.
+
+Changed
+-------
+- Compatibility engine now uses semantic version checks instead of fragile positional index checks in ``is_compatible()``. Removed ``sys_idx`` and ``app_idx`` parameters.
+- ``get_compatibility_map()`` now raises ``ValueError`` instead of silently falling back to all apps when no compatible versions are found.
+- ``StaticWeightProvider.__init__`` no longer uses ``# type: ignore`` or redundant ``cast`` calls; ``Unpack[TypedDict]`` kwargs are converted to a plain ``dict[str, int]`` once at entry.
+- ``DeviceProfileGenerator`` now forwards ``**weight_params: Unpack[WeightParams]`` to ``StaticWeightProvider``, allowing ``DeviceProfileGenerator(windows=40, android=40)`` directly.
+
 0.1.1 - 2026-02-25
 ==================
 
